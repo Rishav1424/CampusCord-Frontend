@@ -8,7 +8,7 @@ const Component = () => {
   const [token, setToken] = useState("");
   const [livekitUrl, setLivekitUrl] = useState("");
   const [room, setRoom] = useState(null);
-  const [connected, setConnected] = useState(false);
+  const [_, setConnected] = useState(false);
   const [micEnabled, setMicEnabled] = useState(true);
   const [camEnabled, setCamEnabled] = useState(true);
   const localVideoRef = useRef(null);
