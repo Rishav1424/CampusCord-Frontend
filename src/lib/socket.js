@@ -5,7 +5,7 @@ let socket = null;
 
 export function connectSocket(serverId) {
   const backendUrl =
-    import.meta.env.VITE_API_URL || "http://localhost:5000";
+    import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
   socket = io(`${backendUrl}/server/${serverId}`, {
     auth: { token: localStorage.getItem("token") },
   });
