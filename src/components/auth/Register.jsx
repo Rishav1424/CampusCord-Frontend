@@ -105,7 +105,7 @@ const Register = () => {
         </CardContent>
         <CardFooter>
           <Button variant="default" className="w-full" onClick={handleRegister}>
-            Login
+            Register
           </Button>
         </CardFooter>
       </Card>

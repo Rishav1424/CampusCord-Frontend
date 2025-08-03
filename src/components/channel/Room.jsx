@@ -1,121 +1,99 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Room } from "livekit-client";
+import { useState, useEffect, useCallback } from "react";
+import {
+  ControlBar,
+  GridLayout,
+  ParticipantTile,
+  RoomAudioRenderer,
+  useTracks,
+  RoomContext,
+  useConnectionState,
+  TrackToggle,
+  DisconnectButton,
+} from "@livekit/components-react";
+import { Room, Track } from "livekit-client";
+import "@livekit/components-styles";
 import api from "@/lib/api";
 import { useParams } from "react-router-dom";
 
-const Component = () => {
+export default function App() {
+  const [room] = useState(
+    () =>
+      new Room({
+        adaptiveStream: true,
+        dynacast: true,
+      })
+  );
   const { serverId, channelName } = useParams();
-  const [token, setToken] = useState("");
-  const [livekitUrl, setLivekitUrl] = useState("");
-  const [room, setRoom] = useState(null);
-  const [_, setConnected] = useState(false);
-  const [micEnabled, setMicEnabled] = useState(true);
-  const [camEnabled, setCamEnabled] = useState(true);
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
 
-  useEffect(() => {
-    (async () => {
-      const { data } = await api.post(
+  const joinRoom = useCallback(async () => {
+    try {
+      const response = await api.post(
         `server/${serverId}/channel/${channelName}/joinroom`
       );
-      console.log(data);
-      setToken(data.token);
-      setLivekitUrl(data.url);
-    })();
-  }, [channelName, serverId]);
+      room.connect(response.data.url, response.data.token, {
+        autoSubscribe: true,
+      });
+    } catch (error) {
+      console.error("Failed to join room:", error);
+    }
+  }, [serverId, channelName, room]);
 
   useEffect(() => {
-    if (!token) return;
-    const connectRoom = async () => {
-      const room = new Room();
-      try {
-        await room.connect(livekitUrl, token, {
-          audio: true,
-          video: true,
-        });
+    joinRoom();
 
-        setRoom(room);
-        setConnected(true);
-
-        room.on("trackSubscribed", (track, publication, participant) => {
-          if (
-            track.kind === "video" &&
-            participant.identity !== room.localParticipant.identity
-          ) {
-            track.attach(remoteVideoRef.current);
-          }
-        });
-
-        // Attach local video
-        room.localParticipant.videoTracks?.forEach((pub) => {
-          const track = pub.track;
-          if (track) track.attach(localVideoRef.current);
-        });
-      } catch (error) {
-        console.log(error.message);
+    // Cleanup function to disconnect when the component unmounts.
+    return () => {
+      if (room && room.isConnected) {
+        console.log("Disconnecting from room");
+        room.disconnect();
       }
     };
+  }, [joinRoom, room]);
 
-    connectRoom();
+  if (useConnectionState(room) === "disconnected") return;
+  return (
+    // Wrap the entire app with the RoomContext to make the room available to all childdiv components.
+    <RoomContext.Provider value={room}>
+      {/* <span>{connected}</span> */}
+      <div
+        data-lk-theme="default"
+        className="flex-1 basis-0.5 overflow-auto flex flex-col"
+        style={{
+          "--lk-control-active-bg": "var(--primary)",
+          "--lk-accent-bg": "var(--primary)",
+        }}
+      >
+        <MyVideoConference />
+        <div className="flex justify-center gap-4 p-4">
+          <TrackToggle source={Track.Source.Microphone}>Microphone</TrackToggle>
+          <TrackToggle source={Track.Source.Camera}>Camera</TrackToggle>
+          <TrackToggle source={Track.Source.ScreenShare}>
+            Share Screen
+          </TrackToggle>
+        </div>
+        <RoomAudioRenderer />
+        {/* <ControlBar /> */}
+      </div>
+    </RoomContext.Provider>
+  );
+}
 
-    return () => {
-      room?.disconnect();
-    };
-  }, [livekitUrl, room, token]);
+function MyVideoConference() {
+  const tracks = useTracks(
+    [
+      { source: Track.Source.Camera, withPlaceholder: true },
+      { source: Track.Source.ScreenShare, withPlaceholder: false },
+    ],
+    { onlySubscribed: false }
+  );
 
-  const toggleMic = () => {
-    if (!room) return;
-    const enabled = !micEnabled;
-    setMicEnabled(enabled);
-    room.localParticipant.setMicrophoneEnabled(enabled);
-  };
-
-  const toggleCam = () => {
-    if (!room) return;
-    const enabled = !camEnabled;
-    setCamEnabled(enabled);
-    room.localParticipant.setCameraEnabled(enabled);
-  };
+  console.log("Tracks:", tracks);
 
   return (
-    <div className="p-4">
-      <div className="flex gap-4">
-        <div>
-          <h3 className="text-white mb-1">Local Video</h3>
-          <video
-            ref={localVideoRef}
-            autoPlay
-            muted
-            className="rounded w-80 h-56 bg-black"
-          />
-        </div>
-        <div>
-          <h3 className="text-white mb-1">Remote Video</h3>
-          <video
-            ref={remoteVideoRef}
-            autoPlay
-            className="rounded w-80 h-56 bg-black"
-          />
-        </div>
-      </div>
-
-      <div className="mt-4 flex gap-4">
-        <button
-          onClick={toggleMic}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          {micEnabled ? "Mute Mic" : "Unmute Mic"}
-        </button>
-        <button
-          onClick={toggleCam}
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
-          {camEnabled ? "Turn Off Cam" : "Turn On Cam"}
-        </button>
-      </div>
+    <div className="flex-1 basis-5 relative overflow-auto">
+      <GridLayout tracks={tracks}>
+        <ParticipantTile className="after:border-primary! flex items-center" />
+      </GridLayout>
     </div>
   );
-};
-
-export default Component;
+}
