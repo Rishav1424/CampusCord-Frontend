@@ -4,7 +4,7 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Switch } from "../ui/switch";
 import { Separator } from "@radix-ui/react-dropdown-menu";
-import { DialogFooter } from "../ui/dialog";
+import { DialogDescription, DialogFooter } from "../ui/dialog";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { Button } from "../ui/button";
 import api from "@/lib/api";
@@ -40,7 +40,7 @@ const EditChannel = ({ channels, channel }) => {
   };
   return (
     <>
-    <DialogDescription>Ctreate new Channel</DialogDescription>
+    <DialogDescription>Edit Channel</DialogDescription>
       <div className="flex flex-col gap-2">
         <Label htmlFor="name"> Name of Channel</Label>
         <Input
@@ -66,7 +66,7 @@ const EditChannel = ({ channels, channel }) => {
         </div>
       </div>
       <Separator />
-      <DialogFooter>
+      <DialogFooter className="flex-row justify-end">
         <DialogClose asChild>
           <Button variant="secondary">Cancel</Button>
         </DialogClose>

@@ -65,7 +65,7 @@ const AddChannel = ({ channels }) => {
         </div>
         <Separator />
       </div>
-      <DialogFooter>
+      <DialogFooter className="flex-row justify-end">
         <DialogClose asChild>
           <Button variant="secondary">Cancel</Button>
         </DialogClose>

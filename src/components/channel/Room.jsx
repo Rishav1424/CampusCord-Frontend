@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import {
-  ControlBar,
   GridLayout,
   ParticipantTile,
   RoomAudioRenderer,
@@ -8,12 +7,12 @@ import {
   RoomContext,
   useConnectionState,
   TrackToggle,
-  DisconnectButton,
 } from "@livekit/components-react";
 import { Room, Track } from "livekit-client";
 import "@livekit/components-styles";
 import api from "@/lib/api";
 import { useParams } from "react-router-dom";
+import { Separator } from "../ui/separator";
 
 export default function App() {
   const [room] = useState(
@@ -43,31 +42,39 @@ export default function App() {
 
     // Cleanup function to disconnect when the component unmounts.
     return () => {
-      if (room && room.isConnected) {
-        console.log("Disconnecting from room");
-        room.disconnect();
-      }
+      console.log("Disconnecting from room");
+      room.disconnect();
+      console.log("Disconnected");
     };
-  }, [joinRoom, room]);
+  }, []);
 
   if (useConnectionState(room) === "disconnected") return;
   return (
     // Wrap the entire app with the RoomContext to make the room available to all childdiv components.
     <RoomContext.Provider value={room}>
-      {/* <span>{connected}</span> */}
       <div
         data-lk-theme="default"
         className="flex-1 basis-0.5 overflow-auto flex flex-col"
-        style={{
-          "--lk-control-active-bg": "var(--primary)",
-          "--lk-accent-bg": "var(--primary)",
-        }}
       >
         <MyVideoConference />
+        <Separator/>
         <div className="flex justify-center gap-4 p-4">
-          <TrackToggle source={Track.Source.Microphone}>Microphone</TrackToggle>
-          <TrackToggle source={Track.Source.Camera}>Camera</TrackToggle>
-          <TrackToggle source={Track.Source.ScreenShare}>
+          <TrackToggle
+            source={Track.Source.Microphone}
+            className="[&[aria-pressed=true]]:bg-primary! hover:[&[aria-pressed=true]]:bg-primary/75!"
+          >
+            Microphone
+          </TrackToggle>
+          <TrackToggle
+            source={Track.Source.Camera}
+            className="[&[aria-pressed=true]]:bg-primary! hover:[&[aria-pressed=true]]:bg-primary/75!"
+          >
+            Camera
+          </TrackToggle>
+          <TrackToggle
+            source={Track.Source.ScreenShare}
+            className="[&[aria-pressed=true]]:bg-primary! hover:[&[aria-pressed=true]]:bg-primary/75!"
+          >
             Share Screen
           </TrackToggle>
         </div>
@@ -86,8 +93,6 @@ function MyVideoConference() {
     ],
     { onlySubscribed: false }
   );
-
-  console.log("Tracks:", tracks);
 
   return (
     <div className="flex-1 basis-5 relative overflow-auto">

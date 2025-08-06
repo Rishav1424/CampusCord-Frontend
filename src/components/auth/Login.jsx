@@ -13,13 +13,16 @@ import { Separator } from "../ui/separator";
 import api from "@/lib/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 const Login = () => {
+  const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
+    setLoading(true);
     e.preventDefault();
     const res = await api.post("auth/login", { username, password });
     if (res.status == 200) {
@@ -27,6 +30,7 @@ const Login = () => {
       localStorage.setItem("token", token);
       toast.success("Login Successfull");
       window.history.length > 1 ? navigate(-1) : navigate("/");
+      setLoading(false);
     } else {
       toast.error("Error Logging in");
     }
@@ -73,8 +77,8 @@ const Login = () => {
           <Separator />
         </CardContent>
         <CardFooter>
-          <Button variant="default" className="w-full" onClick={handleLogin}>
-            Login
+          <Button variant="default" className="w-full" onClick={handleLogin} disabled={loading}>
+            {loading ? <Loader2 className="animate-spin"/>: "Login"}
           </Button>
         </CardFooter>
       </Card>

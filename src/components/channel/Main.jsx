@@ -7,6 +7,9 @@ import { HeadphoneOff, Headset, PencilLine, PencilOff } from "lucide-react";
 import { setChannel } from "@/store/channelSlice";
 import { useParams } from "react-router-dom";
 import api from "@/lib/api";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { SidebarTrigger } from "../ui/sidebar";
+import { Separator } from "../ui/separator";
 
 const Main = () => {
   const serverId = useParams().serverId;
@@ -26,6 +29,8 @@ const Main = () => {
   return (
     <div className="h-screen w-full flex flex-col flex-1">
       <div className="bg-accent/50 p-4 flex items-center gap-4">
+      {useIsMobile() && <SidebarTrigger />}
+      {useIsMobile() && <Separator orientation="vertical"/>}
         {channel?.call ? (
           channel?.restricted ? (
             <HeadphoneOff />

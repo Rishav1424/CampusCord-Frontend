@@ -12,14 +12,17 @@ import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import api from "@/lib/api";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 const Register = () => {
+  const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
 
   const handleRegister = async (e) => {
+    setLoading(true);
     e.preventDefault();
     const res = await api.post("auth/register", {
       username,
@@ -78,7 +81,7 @@ const Register = () => {
             <Input
               id="email"
               type="email"
-                autoComplete="email"
+              autoComplete="email"
               placeholder="Institute Email"
               value={email}
               onChange={(e) => {
@@ -104,8 +107,13 @@ const Register = () => {
           <Separator />
         </CardContent>
         <CardFooter>
-          <Button variant="default" className="w-full" onClick={handleRegister}>
-            Register
+          <Button
+            variant="default"
+            className="w-full"
+            onClick={handleRegister}
+            disabled={loading}
+          >
+            {loading ? <Loader2 className="animate-spin" /> : "Register"}
           </Button>
         </CardFooter>
       </Card>

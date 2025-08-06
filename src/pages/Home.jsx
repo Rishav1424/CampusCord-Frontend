@@ -19,6 +19,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/store/userSlice";
 import api from "@/lib/api";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -52,13 +53,13 @@ const Home = () => {
   };
 
   return (
-    <main className="h-screen flex py-12">
-      <div className="px-20 basis-1/2 flex flex-col gap-10">
+    <main className="h-screen md:flex md:py-12">
+      <div className="px-12 md:px-20 py-40 md:py-0 h-screen md:h-auto basis-1/2 flex flex-col gap-10">
         <div>
           <Handshake />
           Hii {user?.username}
-          <h2 className="text-6xl">Welcome to</h2>
-          <h1 className="text-primary text-6xl font-bold">CampusCord</h1>
+          <h2 className="text-4xl md:text-6xl">Welcome to</h2>
+          <h1 className="text-primary text-5xl md:text-5xl font-bold">CampusCord</h1>
         </div>
         <div>
           {primary && (
@@ -70,7 +71,7 @@ const Home = () => {
                   primary.joined || e.preventDefault();
                 }}
               >
-                <Card className="w-fit flex flex-row p-2 px-4 gap-6 items-center mb-5">
+                <Card className="w-fit flex flex-row p-2 px-4 gap-6 items-center">
                   <Avatar className="size-20 border border-primary">
                     <AvatarImage src={primary.logo} />
                     <AvatarFallback>{primary.name}</AvatarFallback>
@@ -92,7 +93,7 @@ const Home = () => {
               </Link>
             </>
           )}
-          <h4 className="underline font-thin mb-4">Explore other Servers</h4>
+          <h4 className="underline font-thin mt-8 mb-4">Explore other Servers</h4>
           <ScrollArea>
             <div className="flex items-start gap-6">
               {servers.map((server) => (
@@ -127,8 +128,8 @@ const Home = () => {
           </ScrollArea>
         </div>
       </div>
-      <Separator orientation="vertical" />
-      <div className="px-8 basis-1/2">{user && <Profile user={user} />}</div>
+      {!useIsMobile() && <Separator orientation="vertical" />}
+      <div className="px-8 pb-24 md:pb-0 md:py-0 basis-1/2">{user && <Profile user={user} />}</div>
     </main>
   );
 };
@@ -138,13 +139,14 @@ const Profile = ({ user }) => {
   const [username, setUsername] = useState(user?.username);
   const [emaii, setEmail] = useState(user?.email);
   const [icon, setIcon] = useState();
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
+    setLoading(true);
     const response = await api.patch("auth/me", { name, username });
     if (response.status == 201) {
-      console.log(icon?.type);
       if (icon) {
         try {
           await fetch(response.data.uploadUrl, {
@@ -155,15 +157,19 @@ const Profile = ({ user }) => {
             body: icon,
           });
           toast.success("Profile details updated successfully");
-          dispatch(setUser(response.data.user));
         } catch (error) {
           console.log(error.message);
         }
       }
+      dispatch(setUser(response.data.user));
+      setLoading(false);
     }
   };
+
   const Logout = () => {
     localStorage.removeItem("token");
+    dispatch(setUser(null));
+    toast.success("Logged out successfully");
     navigate("/auth");
   };
 
@@ -178,7 +184,7 @@ const Profile = ({ user }) => {
       <CardHeader>
         <CardTitle className="text-3xl text-center">Your Profile</CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 justify-between flex flex-col">
+      <CardContent className="flex-1 justify-between flex flex-col px-0 md:px-6">
         <Separator />
         <Label className="group relative mx-auto w-fit mt-4">
           <Input
@@ -230,13 +236,14 @@ const Profile = ({ user }) => {
         </div>
         <Separator />
       </CardContent>
-      <CardFooter className="gap-2 justify-between flex-col">
+      <CardFooter className="gap-2 justify-between flex-col px-0 md:px-6">
         {name != user.name || username != user.username || icon ? (
           <Button
             variant=""
             type="submit"
             onClick={handleSubmit}
             className="w-full"
+            disabled={loading}
           >
             Save Changes
           </Button>

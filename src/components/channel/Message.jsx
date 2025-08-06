@@ -12,6 +12,17 @@ import { emitSocketEvent } from "@/lib/socket";
 const Message = ({ message }) => {
   const serverId = useParams().serverId;
   const channelName = useParams().channelName;
+  const options = {
+    weekday: "short",
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  };
+  const date = new Date(message.createdAt);
 
   const like = async () => {
     console.log("clicked");
@@ -34,7 +45,9 @@ const Message = ({ message }) => {
 
   return (
     <div
-      className={"w-full flex flex-col p-4" + (message.self && " items-end")}
+      className={
+        "w-screen md:w-auto flex flex-col p-4" + (message.self && " items-end")
+      }
     >
       <div className="flex gap-2 items-center">
         {message.self || (
@@ -53,14 +66,7 @@ const Message = ({ message }) => {
             {message.self ? "you" : message.createdBy.username}
           </div>
           <div className="text-muted text-xs">
-            {Date(message.createdAt).toLocaleString("en-IN", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-              hour: "numeric",
-              minute: "2-digit",
-              hour12: true,
-            })}
+            {date.toLocaleString("en-IN", options)}
           </div>
         </div>
       </div>
@@ -108,21 +114,27 @@ const Message = ({ message }) => {
               </a>
             </Button>
           ))}
-      {message.liked ? (
-        <Badge className="-translate-y-1/2 cursor-pointer absolute -bottom-7 right-2" onClick={disLike}>
-          <ArrowBigUpDash className="size-4" fill="currentColor"/>
-          {message.likes}
-        </Badge>
-      ) : (
-        <Badge
-          variant="outline"
-          className={"-translate-y-1/2 bg-background/75 hover:bg-accent cursor-pointer group-hover:opacity-100 transition absolute -bottom-7 right-2" + (message.likes == 0 && " opacity-0")}
-          onClick={like}
-        >
-          <ArrowBigUpDash/>
-          {message.likes}
-        </Badge>
-      )}
+        {message.liked ? (
+          <Badge
+            className="-translate-y-1/2 cursor-pointer absolute -bottom-7 right-2"
+            onClick={disLike}
+          >
+            <ArrowBigUpDash className="size-4" fill="currentColor" />
+            {message.likes}
+          </Badge>
+        ) : (
+          <Badge
+            variant="outline"
+            className={
+              "-translate-y-1/2 bg-background/75 hover:bg-accent cursor-pointer group-hover:opacity-100 transition absolute -bottom-7 right-2" +
+              (message.likes == 0 && " opacity-0")
+            }
+            onClick={like}
+          >
+            <ArrowBigUpDash />
+            {message.likes}
+          </Badge>
+        )}
       </Card>
     </div>
   );

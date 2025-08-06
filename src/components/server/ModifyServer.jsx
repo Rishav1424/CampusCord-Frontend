@@ -94,7 +94,7 @@ const ModifyServer = () => {
         </div>
       </div>
       <Separator />
-      <DialogFooter>
+      <DialogFooter className="flex-row justify-end">
         <DialogClose asChild>
           <Button variant="secondary">Cancel</Button>
         </DialogClose>
