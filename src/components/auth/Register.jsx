@@ -38,7 +38,7 @@ const Register = () => {
   };
   return (
     <form>
-      <Card className="w-sm">
+      <Card className="w-xs md:w-sm">
         <CardHeader>
           <CardTitle className="text-2xl text-center font-bold">
             Register for CampusCord

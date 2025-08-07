@@ -33,11 +33,12 @@ const Login = () => {
       setLoading(false);
     } else {
       toast.error("Error Logging in");
+      setLoading(false);
     }
   };
   return (
     <form>
-      <Card className="w-sm">
+      <Card className="w-xs md:w-sm">
         <CardHeader>
           <CardTitle className="text-2xl text-center font-bold">
             Login for CampusCord
