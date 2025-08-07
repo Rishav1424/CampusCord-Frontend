@@ -10,6 +10,7 @@ import { store } from "./store/index";
 import { Toaster } from "@/components/ui/sonner";
 import App from "./App";
 import Auth from "./pages/Auth";
+import Redirect from "./components/channel/Redirect";
 
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>
@@ -19,6 +20,7 @@ createRoot(document.getElementById("root")).render(
         <Route element={<App />}>
           <Route index element={<Home />} />
           <Route path="server/:serverId" element={<Server />}>
+            <Route index element={<Redirect/>} />
             <Route path=":channelName" element={<Channel />} />
           </Route>
         </Route>
