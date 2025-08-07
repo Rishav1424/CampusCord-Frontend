@@ -13,6 +13,7 @@ import "@livekit/components-styles";
 import api from "@/lib/api";
 import { useParams } from "react-router-dom";
 import { Separator } from "../ui/separator";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function App() {
   const [room] = useState(
@@ -23,6 +24,7 @@ export default function App() {
       })
   );
   const { serverId, channelName } = useParams();
+  const isMobile = useIsMobile();
 
   const joinRoom = useCallback(async () => {
     try {
@@ -63,23 +65,22 @@ export default function App() {
             source={Track.Source.Microphone}
             className="[&[aria-pressed=true]]:bg-primary! hover:[&[aria-pressed=true]]:bg-primary/75!"
           >
-            Microphone
+            {!isMobile && "Microphone"}
           </TrackToggle>
           <TrackToggle
             source={Track.Source.Camera}
             className="[&[aria-pressed=true]]:bg-primary! hover:[&[aria-pressed=true]]:bg-primary/75!"
           >
-            Camera
+            {!isMobile && "Camera"}
           </TrackToggle>
           <TrackToggle
             source={Track.Source.ScreenShare}
             className="[&[aria-pressed=true]]:bg-primary! hover:[&[aria-pressed=true]]:bg-primary/75!"
           >
-            Share Screen
+            {!isMobile && "Share Screen"}
           </TrackToggle>
         </div>
         <RoomAudioRenderer />
-        {/* <ControlBar /> */}
       </div>
     </RoomContext.Provider>
   );
